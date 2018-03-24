@@ -17,8 +17,8 @@
 
 - name: copy wordpress directory
   shell: cp -a /tmp/wordpress/. /usr/local/openresty/nginx/html/default/
-  args:
-    creates: /usr/local/openresty/nginx/html/default/
+#  args:
+#    creates: /usr/local/openresty/nginx/html/default/
 
 - name: Fetch random salts for WordPress config
   uri:
@@ -52,8 +52,8 @@
 
 - name: Create WordPress database user
   mysql_user:
-    #name: "{{ wp_db_user }}"
-    #password: "{{ wp_db_password }}"
+    name: "{{ wp_db_user }}"
+    password: "{{ wp_db_password }}"
     priv: "{{ wp_db_name }}.*:ALL"
     host: 'localhost'
     state: present
@@ -65,7 +65,7 @@
 
 - name: Change ownership of WordPress installation
   file:
-    path: /srv/wordpress/
+    path: /usr/local/openresty/nginx/html/default/
     owner: nginx
     group: nginx
     state: directory
