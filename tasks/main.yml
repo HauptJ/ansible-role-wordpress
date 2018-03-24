@@ -1,4 +1,8 @@
 ---
+  # Task to install and configure WordPress
+  # TODO:
+  # 1.) Installation of Nginx Helper Plugin: https://wordpress.org/plugins/nginx-helper/
+
 - name: Download Latest version of WordPress
   get_url:
     url: https://wordpress.org/latest.tar.gz
@@ -10,15 +14,15 @@
     chdir: /tmp/
     creates: /tmp/wordpress
 
-- name: Make wp directory
+- name: Make wordpress directory
   file:
-    path: /usr/local/openresty/nginx/html/default/
+    path: "{{ resty_default_web_dir }}"
     state: directory
 
-- name: copy wordpress directory
-  shell: cp -a /tmp/wordpress/. /usr/local/openresty/nginx/html/default/
-#  args:
-#    creates: /usr/local/openresty/nginx/html/default/
+- name: copy wordpress files
+  shell: cp -a /tmp/wordpress/. {{ resty_default_web_dir }}
+  args:
+    creates: {{ resty_default_web_dir }}license.txt
 
 - name: Fetch random salts for WordPress config
   uri:
@@ -61,16 +65,17 @@
 - name: Copy WordPress config file
   template:
     src: wp-config.php
-    dest: /usr/local/openresty/nginx/html/default/
+    dest: "{{ resty_default_web_dir }}"
 
 - name: Change ownership of WordPress installation
   file:
-    path: /usr/local/openresty/nginx/html/default/
+    path: "{{ resty_default_web_dir }}"
     owner: nginx
     group: nginx
     state: directory
     recurse: yes
 
+# TODO: fix directory
 - name: WordPress SELinux configuration
   block:
     - name: set the SELinux policy for the Wordpress directory
