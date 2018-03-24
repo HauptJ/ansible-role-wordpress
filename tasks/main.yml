@@ -10,15 +10,15 @@
     chdir: /tmp/
     creates: /tmp/wordpress
 
-- name: Make {{ server_hostname }} directory
+- name: Make wp directory
   file:
-    path: /var/www/{{ server_hostname }}/html
+    path: /usr/local/openresty/nginx/html/default/
     state: directory
 
 - name: copy wordpress directory
-  shell: cp -a /tmp/wordpress/. /var/www/{{ server_hostname }}/html
+  shell: cp -a /tmp/wordpress/. /usr/local/openresty/nginx/html/default/
   args:
-    creates: "/var/www/{{ server_hostname }}/html"
+    creates: /usr/local/openresty/nginx/html/default/
 
 - name: Fetch random salts for WordPress config
   uri:
@@ -61,79 +61,74 @@
 - name: Copy WordPress config file
   template:
     src: wp-config.php
-    dest: /srv/wordpress/
+    dest: /usr/local/openresty/nginx/html/default/
 
 - name: Change ownership of WordPress installation
   file:
     path: /srv/wordpress/
-    owner: wordpress
-    group: wordpress
+    owner: nginx
+    group: nginx
     state: directory
     recurse: yes
 
-- name: set the SELinux policy for the Wordpress directory
-  sefcontext:
-    target: '/srv/wordpress(/.*)?'
-    setype: httpd_sys_content_t
-    state: present
-    reload: yes
+- name: WordPress SELinux configuration
+  block:
+    - name: set the SELinux policy for the Wordpress directory
+      sefcontext:
+        target: '/srv/wordpress(/.*)?'
+        setype: httpd_sys_content_t
+        state: present
+        reload: yes
+
+    - name: set the SELinux policy for wp-config.php
+      sefcontext:
+        target: '/srv/wordpress/wp-config\.php'
+        setype: httpd_sys_script_exec_t
+        state: present
+        reload: yes
+
+    - name: set the SELinux policy for wp-content directory
+      sefcontext:
+        target: '/srv/wordpress/wp-content(/.*)?'
+        setype: httpd_sys_rw_content_t
+        state: present
+        reload: yes
+
+    - name: set the SELinux policy for the *.php files
+      sefcontext:
+        target: '/srv/wordpress/.*\.php'
+        setype: httpd_sys_script_exec_t
+        state: present
+        reload: yes
+
+    - name: set the SELinux policy for the Upgrade directory
+      sefcontext:
+        target: '/srv/wordpress/wp-content/upgrade(/.*)?'
+        setype: httpd_sys_rw_content_t
+        state: present
+        reload: yes
+
+    - name: set the SELinux policy for the Uploads directory
+      sefcontext:
+        target: '/srv/wordpress/wp-content/uploads(/.*)?'
+        setype: httpd_sys_rw_content_t
+        state: present
+        reload: yes
+
+    - name: set the SELinux policy for the wp-includes php files
+      sefcontext:
+        target: '/srv/wordpress/wp-includes/.*\.php'
+        setype: httpd_sys_script_exec_t
+        state: present
+        reload: yes
+
+    - name: set the SELinux on all the Files
+      command: restorecon -Rv /srv/wordpress
+
   when: sel_disable == false
 
-- name: set the SELinux policy for wp-config.php
-  sefcontext:
-    target: '/srv/wordpress/wp-config\.php'
-    setype: httpd_sys_script_exec_t
-    state: present
-    reload: yes
-  when: sel_disable == false
-
-- name: set the SELinux policy for wp-content directory
-  sefcontext:
-    target: '/srv/wordpress/wp-content(/.*)?'
-    setype: httpd_sys_rw_content_t
-    state: present
-    reload: yes
-  when: sel_disable == false
-
-- name: set the SELinux policy for the *.php files
-  sefcontext:
-    target: '/srv/wordpress/.*\.php'
-    setype: httpd_sys_script_exec_t
-    state: present
-    reload: yes
-  when: sel_disable == false
-
-- name: set the SELinux policy for the Upgrade directory
-  sefcontext:
-    target: '/srv/wordpress/wp-content/upgrade(/.*)?'
-    setype: httpd_sys_rw_content_t
-    state: present
-    reload: yes
-  when: sel_disable == false
-
-- name: set the SELinux policy for the Uploads directory
-  sefcontext:
-    target: '/srv/wordpress/wp-content/uploads(/.*)?'
-    setype: httpd_sys_rw_content_t
-    state: present
-    reload: yes
-  when: sel_disable == false
-
-- name: set the SELinux policy for the wp-includes php files
-  sefcontext:
-    target: '/srv/wordpress/wp-includes/.*\.php'
-    setype: httpd_sys_script_exec_t
-    state: present
-    reload: yes
-  when: sel_disable == false
-
-- name: set the SELinux on all the Files
-  command: restorecon -Rv /srv/wordpress
-  when: sel_disable == false
-
-- name: Start php-fpm Service
+- name: restart php71-php-fpm
   service:
-    name: php-fpm
-    state: started
-    enabled: yes
+    name: php71-php-fpm
+    state: restarted
   ignore_errors: true
