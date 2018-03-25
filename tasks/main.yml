@@ -134,7 +134,7 @@
 - name: Install Nginx Helper plugin
   unarchive:
     src: https://downloads.wordpress.org/plugin/nginx-helper.1.9.10.zip
-    dest: {{ resty_default_web_dir }}/wp-content/plugins/
+    dest: "{{ resty_default_web_dir }}/wp-content/plugins/"
     remote_src: yes
 
 - name: restart php71-php-fpm
