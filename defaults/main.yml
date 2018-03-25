@@ -1,6 +1,6 @@
 ##### WordPress #####
 
-resty_default_web_dir: /usr/local/openresty/nginx/html/default/
+resty_default_web_dir: /usr/local/openresty/nginx/html/default
 
 # These are the WordPress database settings
 wp_new_db: true
