@@ -22,7 +22,7 @@
 - name: copy wordpress files
   shell: cp -a /tmp/wordpress/. {{ resty_default_web_dir }}
   args:
-    creates: {{ resty_default_web_dir }}license.txt
+    creates: "{{ resty_default_web_dir }}license.txt"
 
 - name: Fetch random salts for WordPress config
   uri:
