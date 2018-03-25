@@ -1,7 +1,7 @@
 ---
   # Task to install and configure WordPress
   # TODO:
-  # 1.) Installation of Nginx Helper Plugin: https://wordpress.org/plugins/nginx-helper/
+  # 1.) TESTING OF Installation of Nginx Helper Plugin: https://wordpress.org/plugins/nginx-helper/
 
 - name: Download Latest version of WordPress
   get_url:
@@ -76,65 +76,14 @@
     recurse: yes
 
 - name: WordPress SELinux configuration
-  block:
-    - name: set the SELinux policy for the Wordpress directory
-      sefcontext:
-        target: '{{ resty_default_web_dir }}(/.*)?'
-        setype: httpd_sys_content_t
-        state: present
-        reload: yes
-
-    - name: set the SELinux policy for wp-config.php
-      sefcontext:
-        target: '{{ resty_default_web_dir }}/wp-config\.php'
-        setype: httpd_sys_script_exec_t
-        state: present
-        reload: yes
-
-    - name: set the SELinux policy for wp-content directory
-      sefcontext:
-        target: '{{ resty_default_web_dir }}/wp-content(/.*)?'
-        setype: httpd_sys_rw_content_t
-        state: present
-        reload: yes
-
-    - name: set the SELinux policy for the *.php files
-      sefcontext:
-        target: '{{ resty_default_web_dir }}/.*\.php'
-        setype: httpd_sys_script_exec_t
-        state: present
-        reload: yes
-
-    - name: set the SELinux policy for the Upgrade directory
-      sefcontext:
-        target: '{{ resty_default_web_dir }}/wp-content/upgrade(/.*)?'
-        setype: httpd_sys_rw_content_t
-        state: present
-        reload: yes
-
-    - name: set the SELinux policy for the Uploads directory
-      sefcontext:
-        target: '{{ resty_default_web_dir }}/wp-content/uploads(/.*)?'
-        setype: httpd_sys_rw_content_t
-        state: present
-        reload: yes
-
-    - name: set the SELinux policy for the wp-includes php files
-      sefcontext:
-        target: '{{ resty_default_web_dir }}/wp-includes/.*\.php'
-        setype: httpd_sys_script_exec_t
-        state: present
-        reload: yes
-
-    - name: set the SELinux on all the Files
-      command: restorecon -Rv {{ resty_default_web_dir }}
-
+  include_tasks: selinux.yml
   when: sel_disable == false
 
 - name: Install Nginx Helper plugin
   unarchive:
     src: https://downloads.wordpress.org/plugin/nginx-helper.1.9.10.zip
     dest: "{{ resty_default_web_dir }}/wp-content/plugins/"
+    creates: /usr/local/openresty/nginx/html/default/wp-content/plugins/nginx-helper/readme.txt
     remote_src: yes
 
 - name: restart php71-php-fpm

@@ -1,0 +1,54 @@
+---
+  # Tasks to configure SELinux for WordPress
+
+- name: set the SELinux policy for the Wordpress directory
+  sefcontext:
+    target: '{{ resty_default_web_dir }}(/.*)?'
+    setype: httpd_sys_content_t
+    state: present
+    reload: yes
+
+- name: set the SELinux policy for wp-config.php
+  sefcontext:
+    target: '{{ resty_default_web_dir }}/wp-config\.php'
+    setype: httpd_sys_script_exec_t
+    state: present
+    reload: yes
+
+- name: set the SELinux policy for wp-content directory
+  sefcontext:
+    target: '{{ resty_default_web_dir }}/wp-content(/.*)?'
+    setype: httpd_sys_rw_content_t
+    state: present
+    reload: yes
+
+- name: set the SELinux policy for the *.php files
+  sefcontext:
+    target: '{{ resty_default_web_dir }}/.*\.php'
+    setype: httpd_sys_script_exec_t
+    state: present
+    reload: yes
+
+- name: set the SELinux policy for the Upgrade directory
+  sefcontext:
+    target: '{{ resty_default_web_dir }}/wp-content/upgrade(/.*)?'
+    setype: httpd_sys_rw_content_t
+    state: present
+    reload: yes
+
+- name: set the SELinux policy for the Uploads directory
+  sefcontext:
+    target: '{{ resty_default_web_dir }}/wp-content/uploads(/.*)?'
+    setype: httpd_sys_rw_content_t
+    state: present
+    reload: yes
+
+- name: set the SELinux policy for the wp-includes php files
+  sefcontext:
+    target: '{{ resty_default_web_dir }}/wp-includes/.*\.php'
+    setype: httpd_sys_script_exec_t
+    state: present
+    reload: yes
+
+- name: set the SELinux on all the Files
+  command: restorecon -Rv {{ resty_default_web_dir }}
