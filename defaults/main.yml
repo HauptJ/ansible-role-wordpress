@@ -1,13 +1,15 @@
+# @Author: Haupt Joshua <HauptJ>
+# @Date:   26-Mar-2018
+# @Email:  josh@hauptj.com
+# @Filename: main.yml
+# @Last modified by:   HauptJ
+# @Last modified time: 02-Apr-2018
+
 ##### WordPress #####
 
 resty_default_web_dir: /usr/local/openresty/nginx/html/default
 
-# These are the WordPress database settings
-wp_new_db: true
-wp_db_name: testWP
-wp_db_user: testWPuser
-wp_db_password: 1337TestPass
-
+# NOTE: WordPress database settings have been moved to ansible-role-mariadb
 
 # WordPress Salt
 wp_cache_salt: salty_salty
