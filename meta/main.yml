@@ -26,3 +26,7 @@ galaxy_info:
 dependencies:
   - { role: geerlingguy.repo-epel }
   - { role: geerlingguy.repo-remi }
+  - { role: hauptj.redis }
+  - { role: hauptj.openresty }
+  - { role: hauptj.mariadb }
+  - { role: hauptj.php-fpm }
