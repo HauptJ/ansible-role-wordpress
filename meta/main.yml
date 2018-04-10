@@ -27,6 +27,6 @@ dependencies:
   - { role: geerlingguy.repo-epel }
   - { role: geerlingguy.repo-remi }
   - { role: HauptJ.redis }
-  - { role: HauptJ.openresty }
+  - { role: HauptJ.openresty, resty_default_server: false, resty_install_wp: true, resty_SSL_self_signed: true }
   - { role: HauptJ.mariadb }
   - { role: HauptJ.php-fpm }
