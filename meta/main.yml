@@ -24,9 +24,18 @@ galaxy_info:
     - nginx
     - openresty
 dependencies:
-  - { role: geerlingguy.repo-epel, when wp_ci_test == true }
-  - { role: geerlingguy.repo-remi, when wp_ci_test == true }
-  - { role: HauptJ.redis, when wp_ci_test == true }
-  - { role: HauptJ.openresty, resty_default_server: false, resty_install_wp: true, resty_SSL_self_signed: true, when wp_ci_test == true }
-  - { role: HauptJ.mariadb, when wp_ci_test == true }
-  - { role: HauptJ.php-fpm, when wp_ci_test == true }
+  - role: geerlingguy.repo-epel
+    when: wp_ci_test == true
+  - role: geerlingguy.repo-remi
+    when: wp_ci_test == true
+  - role: HauptJ.redis
+    when: wp_ci_test == true
+  - role: HauptJ.openresty
+    resty_default_server: false
+    resty_install_wp: true
+    resty_SSL_self_signed: true
+    when: wp_ci_test == true
+  - role: HauptJ.mariadb
+    when: wp_ci_test == true
+  - role: HauptJ.php-fpm
+    when: wp_ci_test == true
