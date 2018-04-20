@@ -66,6 +66,13 @@
     creates: /usr/local/openresty/nginx/html/default/wp-content/plugins/nginx-helper/readme.txt
     remote_src: yes
 
+- name: Install Twenty Sixteen theme
+  unarchive:
+    src: https://downloads.wordpress.org/theme/twentysixteen.1.4.zip
+    dest: "{{ resty_default_web_dir }}/wp-content/themes/"
+    creates: /usr/local/openresty/nginx/html/default/wp-content/themes/twentysixteen/readme.txt
+    remote_src: yes
+
 - name: restart php71-php-fpm
   service:
     name: php71-php-fpm
