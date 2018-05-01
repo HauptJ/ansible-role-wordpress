@@ -59,19 +59,36 @@
   include_tasks: selinux.yml
   when: sel_disable == false
 
-- name: Install Nginx Helper plugin
-  unarchive:
-    src: https://downloads.wordpress.org/plugin/nginx-helper.1.9.10.zip
-    dest: "{{ resty_default_web_dir }}/wp-content/plugins/"
-    creates: /usr/local/openresty/nginx/html/default/wp-content/plugins/nginx-helper/readme.txt
-    remote_src: yes
+#- name: Install Nginx Helper plugin
+#  unarchive:
+#    src: https://downloads.wordpress.org/plugin/nginx-helper.1.9.11.zip
+#    dest: "{{ resty_default_web_dir }}/wp-content/plugins/"
+#    creates: /usr/local/openresty/nginx/html/default/wp-content/plugins/nginx-helper/readme.txt
+#    remote_src: yes
 
-- name: Install Twenty Sixteen theme
+#- name: Install WordPress Importer plugin
+#  unarchive:
+#    src: https://downloads.wordpress.org/plugin/wordpress-importer.0.6.4.zip
+#    dest: "{{ resty_default_web_dir }}/wp-content/plugins/"
+#    creates: /usr/local/openresty/nginx/html/default/wp-content/plugins/wordpress-importer/readme.txt
+#    remote_src: yes
+
+- name: Install WordPress Plugins
   unarchive:
-    src: https://downloads.wordpress.org/theme/twentysixteen.1.4.zip
-    dest: "{{ resty_default_web_dir }}/wp-content/themes/"
-    creates: /usr/local/openresty/nginx/html/default/wp-content/themes/twentysixteen/readme.txt
+    src: https://downloads.wordpress.org/plugin/{{ item.name }}.{{ item.ver }}.zip
+    dest: "{{ resty_default_web_dir }}/wp-content/plugins/"
+    creates: /usr/local/openresty/nginx/html/default/wp-content/plugins/{{ item.name }}/readme.txt
     remote_src: yes
+  with_items:
+    - { name: nginx-helper, ver: 1.9.11 }
+    - { name: wordpress-importer, ver: 0.6.4 }
+
+#- name: Install Twenty Sixteen theme
+#  unarchive:
+#    src: https://downloads.wordpress.org/theme/twentysixteen.1.4.zip
+#    dest: "{{ resty_default_web_dir }}/wp-content/themes/"
+#    creates: /usr/local/openresty/nginx/html/default/wp-content/themes/twentysixteen/readme.txt
+#    remote_src: yes
 
 - name: restart php71-php-fpm
   service:
