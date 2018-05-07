@@ -1,0 +1,29 @@
+# @Author: Haupt Joshua <HauptJ>
+# @Date:   26-Mar-2018
+# @Email:  josh@hauptj.com
+# @Filename: main.yml
+# @Last modified by:   HauptJ
+# @Last modified time: 02-Apr-2018
+
+##### WordPress #####
+
+resty_default_web_dir: /usr/local/openresty/nginx/html/default
+
+# NOTE: WordPress database settings have been moved to ansible-role-mariadb
+
+# WordPress Salt
+wp_cache_salt: salty_salty
+
+
+# Disable All Updates
+# By default automatic updates are enabled, set this value to true to disable all automatic updates
+auto_up_disable: false
+
+#Define Core Update Level
+# true  = Development, minor, and major updates are all enabled
+# false = Development, minor, and major updates are all disabled
+# minor = Minor updates are enabled, development, and major updates are disabled
+core_update_level: true
+
+# CI test, should only be set to true for CI testing
+wp_ci_test: true

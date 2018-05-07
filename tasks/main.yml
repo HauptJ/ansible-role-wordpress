@@ -1,4 +1,13 @@
+# @Author: Haupt Joshua <HauptJ>
+# @Date:   26-Mar-2018
+# @Email:  josh@hauptj.com
+# @Filename: main.yml
+# @Last modified by:   HauptJ
+# @Last modified time: 02-Apr-2018
+
 ---
+  # Task to install and configure WordPress
+
 - name: Download Latest version of WordPress
   get_url:
     url: https://wordpress.org/latest.tar.gz
@@ -10,15 +19,15 @@
     chdir: /tmp/
     creates: /tmp/wordpress
 
-- name: Make {{ server_hostname }} directory
+- name: Make wordpress directory
   file:
-    path: /var/www/{{ server_hostname }}/html
+    path: "{{ resty_default_web_dir }}/"
     state: directory
 
-- name: copy wordpress directory
-  shell: cp -a /tmp/wordpress/. /var/www/{{ server_hostname }}/html
+- name: copy wordpress files
+  shell: cp -a /tmp/wordpress/. {{ resty_default_web_dir }}/
   args:
-    creates: "/var/www/{{ server_hostname }}/html"
+    creates: "{{ resty_default_web_dir }}/license.txt"
 
 - name: Fetch random salts for WordPress config
   uri:
@@ -31,109 +40,58 @@
   debug:
     var: wp_salt.content
 
-- name: "Create WordPress database {{ wp_db_name }}"
-  mysql_db:
-    name: "{{ wp_db_name }}"
-    state: present
-  when: wp_new_db == true
-
-- name: Copy database {{ wp_db_name }} file
-  copy:
-    src: "{{ wp_db_name }}.sql.bz2"
-    dest: /tmp
-  when: wp_new_db == false
-
-- name: Restore {{ wp_db_name }} database
-  mysql_db:
-    name: "{{ wp_db_name }}"
-    state: import
-    target: /tmp/{{ wp_db_name }}.sql.bz2
-  when: wp_new_db == false
-
-- name: Create WordPress database user
-  mysql_user:
-    #name: "{{ wp_db_user }}"
-    #password: "{{ wp_db_password }}"
-    priv: "{{ wp_db_name }}.*:ALL"
-    host: 'localhost'
-    state: present
+# NOTE: WordPress database tasks have been moved to ansible-role-mariadb
 
 - name: Copy WordPress config file
   template:
     src: wp-config.php
-    dest: /srv/wordpress/
+    dest: "{{ resty_default_web_dir }}/"
 
 - name: Change ownership of WordPress installation
   file:
-    path: /srv/wordpress/
-    owner: wordpress
-    group: wordpress
+    path: "{{ resty_default_web_dir }}/"
+    owner: nginx
+    group: nginx
     state: directory
     recurse: yes
 
-- name: set the SELinux policy for the Wordpress directory
-  sefcontext:
-    target: '/srv/wordpress(/.*)?'
-    setype: httpd_sys_content_t
-    state: present
-    reload: yes
+- name: WordPress SELinux configuration
+  include_tasks: selinux.yml
   when: sel_disable == false
 
-- name: set the SELinux policy for wp-config.php
-  sefcontext:
-    target: '/srv/wordpress/wp-config\.php'
-    setype: httpd_sys_script_exec_t
-    state: present
-    reload: yes
-  when: sel_disable == false
+#- name: Install Nginx Helper plugin
+#  unarchive:
+#    src: https://downloads.wordpress.org/plugin/nginx-helper.1.9.11.zip
+#    dest: "{{ resty_default_web_dir }}/wp-content/plugins/"
+#    creates: /usr/local/openresty/nginx/html/default/wp-content/plugins/nginx-helper/readme.txt
+#    remote_src: yes
 
-- name: set the SELinux policy for wp-content directory
-  sefcontext:
-    target: '/srv/wordpress/wp-content(/.*)?'
-    setype: httpd_sys_rw_content_t
-    state: present
-    reload: yes
-  when: sel_disable == false
+#- name: Install WordPress Importer plugin
+#  unarchive:
+#    src: https://downloads.wordpress.org/plugin/wordpress-importer.0.6.4.zip
+#    dest: "{{ resty_default_web_dir }}/wp-content/plugins/"
+#    creates: /usr/local/openresty/nginx/html/default/wp-content/plugins/wordpress-importer/readme.txt
+#    remote_src: yes
 
-- name: set the SELinux policy for the *.php files
-  sefcontext:
-    target: '/srv/wordpress/.*\.php'
-    setype: httpd_sys_script_exec_t
-    state: present
-    reload: yes
-  when: sel_disable == false
+- name: Install WordPress Plugins
+  unarchive:
+    src: https://downloads.wordpress.org/plugin/{{ item.name }}.{{ item.ver }}.zip
+    dest: "{{ resty_default_web_dir }}/wp-content/plugins/"
+    creates: /usr/local/openresty/nginx/html/default/wp-content/plugins/{{ item.name }}/readme.txt
+    remote_src: yes
+  with_items:
+    - { name: nginx-helper, ver: 1.9.11 }
+    - { name: wordpress-importer, ver: 0.6.4 }
 
-- name: set the SELinux policy for the Upgrade directory
-  sefcontext:
-    target: '/srv/wordpress/wp-content/upgrade(/.*)?'
-    setype: httpd_sys_rw_content_t
-    state: present
-    reload: yes
-  when: sel_disable == false
+#- name: Install Twenty Sixteen theme
+#  unarchive:
+#    src: https://downloads.wordpress.org/theme/twentysixteen.1.4.zip
+#    dest: "{{ resty_default_web_dir }}/wp-content/themes/"
+#    creates: /usr/local/openresty/nginx/html/default/wp-content/themes/twentysixteen/readme.txt
+#    remote_src: yes
 
-- name: set the SELinux policy for the Uploads directory
-  sefcontext:
-    target: '/srv/wordpress/wp-content/uploads(/.*)?'
-    setype: httpd_sys_rw_content_t
-    state: present
-    reload: yes
-  when: sel_disable == false
-
-- name: set the SELinux policy for the wp-includes php files
-  sefcontext:
-    target: '/srv/wordpress/wp-includes/.*\.php'
-    setype: httpd_sys_script_exec_t
-    state: present
-    reload: yes
-  when: sel_disable == false
-
-- name: set the SELinux on all the Files
-  command: restorecon -Rv /srv/wordpress
-  when: sel_disable == false
-
-- name: Start php-fpm Service
+- name: restart php71-php-fpm
   service:
-    name: php-fpm
-    state: started
-    enabled: yes
+    name: php71-php-fpm
+    state: restarted
   ignore_errors: true
