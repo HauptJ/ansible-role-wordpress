@@ -9,6 +9,10 @@
 
 resty_default_web_dir: /usr/local/openresty/nginx/html/default
 
+resty_default_server: false
+resty_install_wp: true
+resty_SSL_self_signed: true
+
 # NOTE: WordPress database settings have been moved to ansible-role-mariadb
 
 # WordPress Salt
