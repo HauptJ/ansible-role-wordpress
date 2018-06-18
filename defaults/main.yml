@@ -13,6 +13,8 @@ resty_default_server: false
 resty_install_wp: true
 resty_SSL_self_signed: true
 
+wp_uploads_backup_dir: uploads
+
 # NOTE: WordPress database settings have been moved to ansible-role-mariadb
 
 # WordPress Salt

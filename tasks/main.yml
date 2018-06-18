@@ -70,12 +70,22 @@
     - { name: wordpress-importer, ver: 0.6.4 }
     - { name: do-spaces-sync, ver: 1.1.1 }
 
-#- name: Install Twenty Sixteen theme
-#  unarchive:
-#    src: https://downloads.wordpress.org/theme/twentysixteen.1.4.zip
-#    dest: "{{ resty_default_web_dir }}/wp-content/themes/"
-#    creates: /usr/local/openresty/nginx/html/default/wp-content/themes/twentysixteen/readme.txt
-#    remote_src: yes
+- name: Install WordPress Themes
+  unarchive:
+    src: https://downloads.wordpress.org/theme/{{ item.name }}.{{ item.ver }}.zip
+    dest: "{{ resty_default_web_dir }}/wp-content/themes/"
+    creates: /usr/local/openresty/nginx/html/default/wp-content/themes/{{ item.name }}/readme.txt
+    remote_src: yes
+  with_items:
+    - { name: bhari, ver: 1.0.4.9 }
+
+- name: Push uploads
+  synchronize:
+    mode: push
+    dest: "{{ resty_default_web_dir }}/wp-content/uploads/"
+    src: "{{ wp_uploads_backup_dir }}/"
+    recursive: yes
+  delegate_to: localhost
 
 - name: restart php71-php-fpm
   service:
