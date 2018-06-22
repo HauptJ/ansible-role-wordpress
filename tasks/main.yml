@@ -1,9 +1,3 @@
-# @Author: Haupt Joshua <HauptJ>
-# @Date:   26-Mar-2018
-# @Email:  josh@hauptj.com
-# @Filename: main.yml
-# @Last modified by:   HauptJ
-# @Last modified time: 02-Apr-2018
 
 ---
   # Task to install and configure WordPress
@@ -86,6 +80,14 @@
     src: "{{ wp_uploads_backup_dir }}/"
     recursive: yes
   delegate_to: localhost
+
+- name: Fix upload directory permissions
+  file:
+    dest: "{{ resty_default_web_dir }}/wp-content/uploads/"
+    owner: nginx
+    group: nginx
+    mode: u=rwX,g=rX,o=rX
+    recurse: yes
 
 - name: restart php71-php-fpm
   service:
