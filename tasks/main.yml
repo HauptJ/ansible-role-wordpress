@@ -80,6 +80,9 @@
     src: "{{ wp_uploads_backup_dir }}/"
     recursive: yes
   delegate_to: localhost
+  when: wp_ci_test == false
+  tags:
+    - deploy
 
 - name: Fix upload directory permissions
   file:
