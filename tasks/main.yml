@@ -51,7 +51,9 @@
 
 - name: WordPress SELinux configuration
   include_tasks: selinux.yml
-  when: sel_disable == false
+  #when: sel_disable == false
+  tags:
+    - selinux
 
 - name: Install WordPress Plugins
   unarchive:
@@ -80,9 +82,9 @@
     src: "{{ wp_uploads_backup_dir }}/"
     recursive: yes
   delegate_to: localhost
-  when: wp_ci_test == false
+  #when: wp_ci_test == false
   tags:
-    - deploy
+    - restore
 
 - name: Fix upload directory permissions
   file:
@@ -91,6 +93,8 @@
     group: nginx
     mode: u=rwX,g=rX,o=rX
     recurse: yes
+  tags:
+    - restore
 
 - name: restart php71-php-fpm
   service:
