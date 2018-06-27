@@ -74,6 +74,7 @@
     remote_src: yes
   with_items:
     - { name: bhari, ver: 1.0.4.9 }
+    - { name: kotha, ver: 1.4.1 }
 
 - name: Push uploads
   synchronize:
