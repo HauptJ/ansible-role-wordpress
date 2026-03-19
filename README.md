@@ -16,4 +16,5 @@ Ansible role to install and configure WordPress
 | Name 						      | Default 							                    | Description 										  |
 |-----------------------|-------------------------------------------|-----------------------------------|
 | resty_default_web_dir | /usr/local/openresty/nginx/html/default   | web directory                     |
-| wp_cache_salt         | salty_salty                               | WordPress cache salt              |
+| php_fpm_daemon        | php-fpm
+| php_fpm_handler_state | restarted

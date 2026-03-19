@@ -3,7 +3,7 @@
 # @Email:  josh@hauptj.com
 # @Filename: main.yml
 # @Last modified by:   HauptJ
-# @Last modified time: 02-Apr-2018
+# @Last modified time: 19-Mar-2026
 
 ---
   # Task to install and configure WordPress
@@ -59,20 +59,6 @@
   include_tasks: selinux.yml
   when: sel_disable == false
 
-#- name: Install Nginx Helper plugin
-#  unarchive:
-#    src: https://downloads.wordpress.org/plugin/nginx-helper.1.9.11.zip
-#    dest: "{{ resty_default_web_dir }}/wp-content/plugins/"
-#    creates: /usr/local/openresty/nginx/html/default/wp-content/plugins/nginx-helper/readme.txt
-#    remote_src: yes
-
-#- name: Install WordPress Importer plugin
-#  unarchive:
-#    src: https://downloads.wordpress.org/plugin/wordpress-importer.0.6.4.zip
-#    dest: "{{ resty_default_web_dir }}/wp-content/plugins/"
-#    creates: /usr/local/openresty/nginx/html/default/wp-content/plugins/wordpress-importer/readme.txt
-#    remote_src: yes
-
 - name: Install WordPress Plugins
   unarchive:
     src: https://downloads.wordpress.org/plugin/{{ item.name }}.{{ item.ver }}.zip
@@ -80,8 +66,8 @@
     creates: /usr/local/openresty/nginx/html/default/wp-content/plugins/{{ item.name }}/readme.txt
     remote_src: yes
   with_items:
-    - { name: nginx-helper, ver: 1.9.11 }
-    - { name: wordpress-importer, ver: 0.6.4 }
+    - { name: nginx-helper, ver: 2.3.5 }
+    - { name: wordpress-importer, ver: 0.9.5 }
 
 #- name: Install Twenty Sixteen theme
 #  unarchive:
@@ -90,8 +76,8 @@
 #    creates: /usr/local/openresty/nginx/html/default/wp-content/themes/twentysixteen/readme.txt
 #    remote_src: yes
 
-- name: restart php71-php-fpm
+- name: restart php-fpm
   service:
-    name: php71-php-fpm
-    state: restarted
+    name: "{{ php_fpm_daemon }}"
+    state: "{{ php_fpm_handler_state }}"
   ignore_errors: true

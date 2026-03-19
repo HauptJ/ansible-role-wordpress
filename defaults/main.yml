@@ -27,3 +27,6 @@ core_update_level: true
 
 # CI test, should only be set to true for CI testing
 wp_ci_test: true
+
+php_fpm_daemon: php-fpm
+php_fpm_handler_state: restarted
